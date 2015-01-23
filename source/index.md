@@ -1,168 +1,103 @@
 ---
-title: API Reference
+title: scaleApp
 
 language_tabs:
-  - shell
-  - ruby
-  - python
+  - javascript
+  - coffeescript
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='http://github.com/tripit/slate'>Documentation Powered by Slate</a>
+  - <a href='https://github.com/flosse/scaleApp'>GitHub page</a>
 
 includes:
-  - errors
+  - download
+  - install
+  - quick-start
 
 search: true
 ---
 
-# Introduction
+# What is scaleApp?
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+scaleApp is a tiny JavaScript framework for scalable and maintainable
+[One-Page-Applications / Single-Page-Applications](http://en.wikipedia.org/wiki/Single-page_application).
+The framework allows you to easily create complex web applications.
 
-We have language bindings in Shell, Ruby, and Python! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+[![Build Status](https://img.shields.io/travis/flosse/scaleApp.svg?style=flat-square)](http://travis-ci.org/flosse/scaleApp)
+[![Dependency Status](https://img.shields.io/gemnasium/flosse/scaleApp.svg?style=flat-square)](https://gemnasium.com/flosse/scaleApp)
+[![NPM version](https://img.shields.io/npm/v/scaleapp.svg?style=flat-square)](http://badge.fury.io/js/scaleapp)
+[![Coverage Status](https://img.shields.io/coveralls/flosse/scaleApp/master.svg?style=flat-square)](https://coveralls.io/r/flosse/scaleApp?branch=master)
 
-This example API documentation page was created with [Slate](http://github.com/tripit/slate). Feel free to edit it and use it as a base for your own API's documentation.
+You can dynamically start and stop/destroy modules that acts as small parts of
+your whole application.
 
-# Authentication
+## Architecture overview
 
-> To authorize, use this code:
+scaleApp is based on a decoupled, event-driven architecture that is inspired by
+the talk of Nicholas C. Zakas -
+["Scalable JavaScript Application Architecture"](https://www.youtube.com/watch?v=vXjVFPosQHw)
+([Slides](http://www.slideshare.net/nzakas/scalable-javascript-application-architecture)).
+There also is a little [Article](http://www.ubelly.com/2011/11/scalablejs/) that
+describes the basic ideas.
 
-```ruby
-require 'kittn'
+![scaleApp architecture](https://raw.github.com/flosse/scaleApp/master/architecture.png)
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
+### Module
 
-```python
-import kittn
+A module is a completely independent part of your application.
+It has absolutely no reference to another piece of the app.
+The only thing the module knows is your sandbox.
+The sandbox is used to communicate with other parts of the application.
 
-api = kittn.authorize('meowmeowmeow')
-```
+### Sandbox
 
-```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
-```
+The main purpose of the sandbox is to use the
+[facade pattern](https://en.wikipedia.org/wiki/Facade_pattern).
+In that way you can hide the features provided by the core and only show
+a well defined custom static long term API to your modules.
+This is actually one of the most important concept for creating
+mainainable apps. Change plugins, implementations etc.
+but keep your API stable for your modules.
+For each module a separate sandbox will be created.
 
-> Make sure to replace `meowmeowmeow` with your API key.
+### Core
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+The core is responsible for starting and stopping your modules.
+It also handles the messages by using the
+[Publish/Subscribe (Mediator) pattern](https://en.wikipedia.org/wiki/Publish%E2%80%93subscribe_pattern)
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+### Plugin
 
-`Authorization: meowmeowmeow`
+Plugins can extend the core or the sandbox with additional features.
+For example you could extend the core with basic functionalities
+(like DOM manipulation) or just aliases the features of a base library (e.g. jQuery).
 
-<aside class="notice">
-You must replace `meowmeowmeow` with your personal API key.
-</aside>
+## Features
 
-# Kittens
++ loose coupling of modules
++ small (about 300 sloc / 8,7k min / 3.3k gz)
++ no dependencies
++ modules can be tested separately
++ replacing any module without affecting other modules
++ extendable with plugins
++ browser and [Node.js](http://nodejs.org/) support
++ flow control
++ [AMD](https://en.wikipedia.org/wiki/Asynchronous_module_definition) & [CommonJS](http://www.commonjs.org/) support
++ framework-agnostic
 
-## Get All Kittens
+### Extendable
 
-```ruby
-require 'kittn'
+scaleApp itself is very small but it can be extended with plugins. There already
+are some plugins available:
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
+- `mvc` - simple MVC
+- `i18n` - multi language UIs
+- `permission` - take care of method access
+- `state` - Finite State Machine
+- `submodule` - cascade modules
+- `dom` - DOM manipulation
+- `strophe` - XMPP communication
+- `modulestate` - event emitter for `init` and `destroy`
+- `util` - helper methods like `mixin`, `uniqueId` etc.
+- `ls` - list modules, instances & plugins
 
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
-```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
-```
-
-> The above command returns JSON structured like this:
-
-```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Isis",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
-```
-
-This endpoint retrieves all kittens.
-
-### HTTP Request
-
-`GET http://example.com/kittens`
-
-### Query Parameters
-
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-
-## Get a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/3"
-  -H "Authorization: meowmeowmeow"
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "name": "Isis",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
-```
-
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">If you're not using an administrator API key, note that some kittens will return 403 Forbidden if they are hidden for admins only.</aside>
-
-### HTTP Request
-
-`GET http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the cat to retrieve
-
+You can easily define your own plugin (see plugin section).
