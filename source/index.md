@@ -1,10 +1,6 @@
 ---
 title: scaleApp
 
-language_tabs:
-  - javascript
-  - coffeescript
-
 toc_footers:
   - <a href='https://github.com/flosse/scaleApp'>GitHub page</a>
 
@@ -12,13 +8,19 @@ includes:
   - download
   - install
   - quick-start
+  - api
+  - build
+  - testing
+  - demo
+  - changelog
+  - licence
 
 search: true
 ---
 
 # What is scaleApp?
 
-scaleApp is a tiny JavaScript framework for scalable and maintainable
+**scaleApp** is a tiny JavaScript framework for scalable and maintainable
 [One-Page-Applications / Single-Page-Applications](http://en.wikipedia.org/wiki/Single-page_application).
 The framework allows you to easily create complex web applications.
 
